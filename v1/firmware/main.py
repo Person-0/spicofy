@@ -1,3 +1,11 @@
+# Note!!!
+# I'm using a mock kmk.py and board.py to sanity-test my code
+# Since I'm too lazy to create the entire directory structure,
+# I've made it a single file which means we cannot use the imports
+# as-is. Hence, the comments below are present.
+# The comments will be removed in the final code along with the 
+# invalid single kmk import line
+
 import board
 # from kmk.modules.encoder import EncoderHandler
 # from kmk.kmk_keyboard import KMKKeyboard
