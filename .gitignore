@@ -1,1 +1,7 @@
+# misc
 desktop.ini
+
+# test files i used to sanity check my code
+v1/firmware/kmk.py
+v1/firmware/board.py
+v1/firmware/__pycache__

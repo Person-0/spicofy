@@ -1,6 +1,4 @@
-# **Spicofy**
-**Version**: `1.0`
-<br>
+# **Spicofy v1.0**
 
 A spotify controller with features including play, pause and volume control and an OLED Panel to show the currently playing song along with RGB indicators for status.
 <br>
@@ -16,15 +14,22 @@ Made as a submission to [hackclub's blueprint](blueprint.hackclub.com) with imme
 - SSD1306 0.91 inch OLED display (1x)
 - SK6812 MINI-E LEDs (2x)
 
+## Firmware
+
+### [View Firmware](./v1/firmware/)
+
+Uses [kmk firmware](https://github.com/KMKfw/kmk_firmware) to detect keypress and rotary encoder events.
+**WIP**.
+
 ## Pictures
 > Taken from [Fusion 360](https://www.autodesk.com/products/fusion-360/overview) & [KiCad](https://www.kicad.org/)
 
-<img src="./pics/v1/full.png">
-<img src="./pics/v1/base+pcb+components.png">
-<img src="./pics/v1/circuit.png">
-<img src="./pics/v1/pcb.png">
-<img src="./pics/v1/cover.png">
-<img src="./pics/v1/base.png">
+<img src="./v1/pics/full.png">
+<img src="./v1/pics/base+pcb+components.png">
+<img src="./v1/pics/circuit.png">
+<img src="./v1/pics/pcb.png">
+<img src="./v1/pics/cover.png">
+<img src="./v1/pics/base.png">
 
 
 > Model Credits (grabcad.com)
