@@ -5,7 +5,11 @@ const rlinterface = readline.createInterface(
 );
 
 const asyncQuestion = (query: string) => new Promise((resolve) => {
-	rlinterface.question(query, (ans) => resolve(ans));
+	console.pause();
+	rlinterface.question(query, (ans) => {
+		resolve(ans);
+		console.resume();
+	});
 });
 
 type ChoiceResult =

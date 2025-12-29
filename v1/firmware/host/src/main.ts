@@ -1,6 +1,9 @@
+import "./misc/console";
 import { SerialPort } from "serialport";
-import { choiceSelect, samplePortResponse } from "./misc";
-import { envFile, EnvFile } from "./schemas";
+import { choiceSelect, samplePortResponse } from "./misc/misc";
+import { envFile, EnvFile, packet, Packet } from "./schemas";
+import { HTTP_APP } from "./http_app";
+import SPOTIFY from "./spotify";
 
 console.log("==== Spicofy host service ====\n");
 
@@ -53,22 +56,76 @@ async function getPort(tryIndex = 1): Promise<null | PortInfo> {
 }
 
 async function main() {
+	const app = new HTTP_APP(ENV);
+	app.onCodeRecived = async (code) => {
+		await SPOTIFY.getInitialAuthToken(code, ENV);
+	};
+
 	console.log("Scanning for serial ports...");
 
 	let portGetErr = null;
-	const port = await getPort().catch((err) => {
+	const portinf = await getPort().catch((err) => {
 		portGetErr = err;
 	});
 
-	if (!port) {
+	if (!portinf) {
 		console.log("Error: Could not get serial port");
 		if (portGetErr) {
 			console.log("Exit Reason:", portGetErr);
 		}
-		process.exit();
+		//process.exit();
+		return;
 	}
 
-	console.log("selection:", port);
+	console.log("Connecting to ", portinf);
+
+	const port = new SerialPort({
+		path: portinf.path,
+		baudRate: 115200
+	});
+
+	const sendToMCU = (label: string, data: Record<string, any>) => {
+		if (!port.writable) {
+			console.log("[HOST] DATA LOSS: PORT NOT WRITABLE!");
+			return;
+		}
+		const packet = [label, data] satisfies Packet;
+		console.log("[HOST]:", packet);
+		port.write(JSON.stringify(packet));
+	}
+
+	port.on("data", (d) => {
+		const rawmsg = d.toString().trim();
+		let msg: Packet | null = null;
+		try {
+			const parsed = packet.safeParse(JSON.parse(rawmsg));
+			if(parsed.error) {
+				throw parsed.error;
+			}
+			msg = parsed.data;
+		} catch (e) {
+			console.log("[MCU PARSE ERROR!]", rawmsg);
+			return;
+		}
+
+		switch(msg[0]) {
+			default:
+				console.log("[MCU]:", msg);
+
+			case "ping":
+				console.log("[MCU] Connected!\n");
+				console.log("Please complete your Spotify Authentication");
+				console.log("by going to the following link:");
+				console.log("http://127.0.0.1:8192/authorize\n");
+				app.allowAuthFlow = true;
+				break;
+		}
+	});
+
+	port.on("close", () => {
+		console.log("[CONNECTION CLOSED]");
+		process.exit();
+	});
 }
 
 main();
