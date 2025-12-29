@@ -1,6 +1,7 @@
 # firmware files not required to be uploaded
 v1/firmware/host/node_modules
 v1/firmware/host/.env
+v1/firmware/host/dist
 
 # misc
 desktop.ini
