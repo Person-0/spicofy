@@ -57,7 +57,7 @@ async function getPort(tryIndex = 1): Promise<null | PortInfo> {
 
 async function main() {
 	const app = new HTTP_APP(ENV);
-	app.onCodeRecived = async (code) => {
+	app.onCodeReceived = async (code) => {
 		await SPOTIFY.getInitialAuthToken(code, ENV);
 	};
 

@@ -15,7 +15,7 @@ const randomString = (len: number) => {
 export class HTTP_APP {
 	app = express();
 	allowAuthFlow = true//false;
-	onCodeRecived: null | ((code: string) => void) = null;
+	onCodeReceived: null | ((code: string) => void) = null;
 
 	constructor(ENV: EnvFile) {
 		this.app.use(express.json());
@@ -73,16 +73,16 @@ export class HTTP_APP {
 				return;
 			}
 
-			if(this.onCodeRecived) {
+			if(this.onCodeReceived) {
 				res.send({
 					error: false
 				});
 
-				this.onCodeRecived(parsed.data.code);
+				this.onCodeReceived(parsed.data.code);
 			} else {
 				res.send({
 					error: true,
-					message: "onCodeRecived handler unset"
+					message: "onCodeReceived handler unset"
 				});
 			}
 		});
