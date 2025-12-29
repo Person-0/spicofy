@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Person-0/spicofy#readme",
   "dependencies": {
-    "serialport": "^13.0.0"
+    "serialport": "^13.0.0",
+    "zod": "^4.2.1"
   }
 }
