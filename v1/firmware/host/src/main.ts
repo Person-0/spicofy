@@ -7,7 +7,7 @@ console.log("==== Spicofy host service ====\n");
 let ENV: EnvFile;
 {
     let parsedRes = envFile.safeParse(process.env);
-    if(parsedRes.error) {
+    if (parsedRes.error) {
         console.log("Invalid Env File: ", parsedRes.error.message);
         process.exit();
     }
@@ -19,10 +19,10 @@ async function getPort(tryIndex = 1): Promise<null | PortInfo> {
     const ports = samplePortResponse;//await SerialPort.list();
     const numPorts = ports.length;
 
-    if(!numPorts) {
+    if (!numPorts) {
         console.log("Found no serial ports!");
 
-        if(tryIndex >= ENV.maxPortSearchTries) {
+        if (tryIndex >= ENV.maxPortSearchTries) {
             throw Error("No Serial Ports found");
         }
 
@@ -37,12 +37,12 @@ async function getPort(tryIndex = 1): Promise<null | PortInfo> {
     }
 
     console.log(`Found ${numPorts} serial port${numPorts > 1 ? 's' : ''}.`);
-    
-    if(numPorts > 1) {
+
+    if (numPorts > 1) {
         console.log("Multiple serial ports found!");
         const selection = await choiceSelect(ports);
 
-        if(selection.cancelled) {
+        if (selection.cancelled) {
             return null;
         } else {
             return selection.choiceData as PortInfo;
@@ -60,14 +60,14 @@ async function main() {
         portGetErr = err;
     });
 
-    if(!port) {
+    if (!port) {
         console.log("Error: Could not get serial port");
-        if(portGetErr) {
+        if (portGetErr) {
             console.log("Exit Reason:", portGetErr);
         }
         process.exit();
     }
-    
+
     console.log("selection:", port);
 }
 
