@@ -14,12 +14,16 @@ Made as a submission to [hackclub's blueprint](blueprint.hackclub.com) with imme
 - SSD1306 0.91 inch OLED display (1x)
 - SK6812 MINI-E LEDs (2x)
 
-## Firmware
+## Firmware (WIP)
 
-### [View Firmware](./v1/firmware/)
+### [*Click here to view Firmware files*](./v1/firmware/)
 
-Uses [kmk firmware](https://github.com/KMKfw/kmk_firmware) to detect keypress and rotary encoder events.
-**WIP**.
+- #### MCU:
+    Uses [kmk firmware](https://github.com/KMKfw/kmk_firmware) to detect keypress and rotary encoder events.<br>
+    - Listens to data from the serial port for current playback state
+    - Sends data to the serial port for changes in the playback state (play/pause, next, volume etc.)
+- #### Host:
+    Responsible for getting the access token from the [Spotify Web API](https://developer.spotify.com/documentation/web-api) and relaying information between the API and the MCU.
 
 ## Pictures
 > Taken from [Fusion 360](https://www.autodesk.com/products/fusion-360/overview) & [KiCad](https://www.kicad.org/)
