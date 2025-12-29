@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/Person-0/spicofy/issues"
   },
-  "homepage": "https://github.com/Person-0/spicofy#readme"
+  "homepage": "https://github.com/Person-0/spicofy#readme",
+  "dependencies": {
+    "serialport": "^13.0.0"
+  }
 }
