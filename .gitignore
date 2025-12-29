@@ -1,7 +1,11 @@
+# firmware files not required to be uploaded
+v1/firmware/host/node_modules
+v1/firmware/host/.env
+
 # misc
 desktop.ini
 
 # test files i used to sanity check my code
-v1/firmware/kmk.py
-v1/firmware/board.py
-v1/firmware/__pycache__
+v1/firmware/mcu/kmk.py
+v1/firmware/mcu/board.py
+v1/firmware/mcu/__pycache__
