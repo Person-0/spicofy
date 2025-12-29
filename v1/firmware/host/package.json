@@ -1,0 +1,26 @@
+{
+  "name": "spicofy-host",
+  "version": "1.0.0",
+  "description": "host service for spicofy",
+  "main": "src/main.ts",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "clean": "rimraf dist",
+    "start": "npm run clean && npm run build && node --env-file=.env dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Person-0/spicofy.git"
+  },
+  "author": "Person-0",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Person-0/spicofy/issues"
+  },
+  "homepage": "https://github.com/Person-0/spicofy#readme"
+}

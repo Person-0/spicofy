@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "target": "esnext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "resolveJsonModule": true,
+        "lib": [
+          "ESNext"
+        ]
+    },
+    "include": [
+        "src/*",
+        "src/*/*"
+    ]
+}
