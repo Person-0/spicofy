@@ -99,7 +99,7 @@ async function main() {
 		let msg: Packet | null = null;
 		try {
 			const parsed = packet.safeParse(JSON.parse(rawmsg));
-			if(parsed.error) {
+			if (parsed.error) {
 				throw parsed.error;
 			}
 			msg = parsed.data;
@@ -108,7 +108,7 @@ async function main() {
 			return;
 		}
 
-		switch(msg[0]) {
+		switch (msg[0]) {
 			default:
 				console.log("[MCU]:", msg);
 

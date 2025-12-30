@@ -2,7 +2,9 @@ import {
 	authTokenRequest,
 	AuthTokenResponse,
 	EnvFile,
-	erroredRequestInfo
+	erroredRequestInfo,
+	playbackStateRequest,
+	playbackStateResponse
 } from "./schemas";
 
 export default (new (class SpotifyAPI {
@@ -73,8 +75,8 @@ export default (new (class SpotifyAPI {
 		if (!this.normalAuthString) {
 			throw Error("_authTokenRequest() called without normalAuthString!");
 		}
-		let isError = false;
 
+		let isError = false;
 		const res = await this.fetch(
 			'POST',
 			'https://accounts.spotify.com/api/token',
@@ -152,5 +154,27 @@ export default (new (class SpotifyAPI {
 		}
 
 		setTimeout(this.refreshAuthToken, data.expires_in * 1000);
+	}
+
+	getPlayerState = async(): Promise<null | playbackStateResponse> => {
+		let isError = false;
+		const response = await this.fetch(
+			"GET",
+			"https://api.spotify.com/v1/me/player",
+			true
+		).catch(e => {
+			isError = true;
+			console.log("[SPOTIFY] Failed to get player state:", e);
+		});
+		if(isError) return null;
+		const parsed = playbackStateRequest.safeParse(response);
+		if(parsed.error) {
+			console.log(
+				"[SPOTIFY] Failed to get player state:",
+				parsed.error.message
+			);
+			return null;
+		}
+		return parsed.data;
 	}
 }));
