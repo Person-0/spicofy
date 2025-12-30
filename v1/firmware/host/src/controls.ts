@@ -40,7 +40,7 @@ export class ControlsManager {
 		if(!playerState) return;
 
 		playerState.progress_ms += delta;
-		if(playerState.progress_ms > playerState.item.duration_ms) {
+		if(playerState.progress_ms >= playerState.item.duration_ms) {
 			playerState.progress_ms = playerState.item.duration_ms;
 			setTimeout(this.updateState, 250);
 		}
