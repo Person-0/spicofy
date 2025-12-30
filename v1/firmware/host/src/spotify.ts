@@ -240,7 +240,7 @@ export class SpotifyAPI {
 		const volume = Math.floor(_volume).toString();
 		return this.authedPutRequests(
 			'setPlayerVolume',
-			'https://api.spotify.com/v1/me/player/volume?volume_percent=' + 
+			'https://api.spotify.com/v1/me/player/volume?volume_percent=' +
 			volume
 		);
 	}

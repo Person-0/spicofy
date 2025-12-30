@@ -5,9 +5,9 @@ import { callbackRequestData, EnvFile } from "./schemas";
 const HTTP_PORT = 8192;
 const randomString = (len: number) => {
 	let str = "";
-	while(str.length < len) {
+	while (str.length < len) {
 		const gen = randomUUID().replaceAll("-", "");
-		str += gen.slice(0, len-str.length);
+		str += gen.slice(0, len - str.length);
 	}
 	return str;
 }
@@ -28,7 +28,7 @@ export class HTTP_APP {
 
 		// returns true if res.send was called
 		const ensureAuthFlowAllowed = (res: express.Response) => {
-			if(!this.allowAuthFlow) {
+			if (!this.allowAuthFlow) {
 				res.send({
 					error: true,
 					message: "auth flow not enabled yet"
@@ -39,7 +39,7 @@ export class HTTP_APP {
 		}
 
 		this.app.get("/authorize", (req, res) => {
-			if(ensureAuthFlowAllowed(res)) return;
+			if (ensureAuthFlowAllowed(res)) return;
 
 			const scopes = [
 				'user-read-playback-state',
@@ -62,10 +62,10 @@ export class HTTP_APP {
 		});
 
 		this.app.get("/callback", (req, res) => {
-			if(ensureAuthFlowAllowed(res)) return;
+			if (ensureAuthFlowAllowed(res)) return;
 
 			const parsed = callbackRequestData.safeParse(req.query);
-			if(parsed.error) {
+			if (parsed.error) {
 				res.send({
 					error: true,
 					message: "Invalid URL Search params"
@@ -73,7 +73,7 @@ export class HTTP_APP {
 				return;
 			}
 
-			if(this.onCodeReceived) {
+			if (this.onCodeReceived) {
 				res.send({
 					error: false
 				});

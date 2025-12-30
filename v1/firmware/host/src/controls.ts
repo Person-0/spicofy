@@ -15,12 +15,12 @@ export class ControlsManager {
 	}
 
 	update = async () => {
-		if(!this.sendToMCU) {
+		if (!this.sendToMCU) {
 			return;
 		}
-		
+
 		const playerState = await this.spotify.getPlayerState();
-		if(!playerState) {
+		if (!playerState) {
 			this.sendToMCU("state", {});
 			return;
 		}

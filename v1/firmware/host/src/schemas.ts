@@ -13,6 +13,8 @@ export type EnvFile = z.infer<typeof envFile>;
 
 // serial
 
+export type SendToMCUFn = (label: string, data: any) => void;
+
 export const packet = z.tuple([
 	z.string().min(1),
 	z.any()
@@ -27,8 +29,6 @@ export const keyNames = z.union([
 	z.literal("MISC")
 ]);
 export type KeyName = z.infer<typeof keyNames>;
-
-export type SendToMCUFn = (label: string, data: any) => void;
 
 // http app
 

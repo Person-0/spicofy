@@ -126,7 +126,7 @@ async function main() {
 
 			case "key":
 				const keyValidity = keyNames.safeParse(msg[1]);
-				if(keyValidity.error) {
+				if (keyValidity.error) {
 					console.log(
 						"[SERIAL PARSE ERROR:]",
 						keyValidity.error
@@ -137,16 +137,16 @@ async function main() {
 				break;
 
 			case "vol":
-				if(!(typeof msg[1] === "number")){
+				if (!(typeof msg[1] === "number")) {
 					console.log(
 						"[SERIAL PARSE ERROR:]",
 						"Volume packet second arg not a number"
 					);
 					return;
 				}
-				if(msg[1] > 0) {
+				if (msg[1] > 0) {
 					Controls.volumeUpdate('increase');
-				} else if(msg[1] < 0) {
+				} else if (msg[1] < 0) {
 					Controls.volumeUpdate('decrease');
 				}
 				break;
