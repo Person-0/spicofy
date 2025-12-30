@@ -1,9 +1,9 @@
 import "./misc/console";
 import { SerialPort } from "serialport";
 import { choiceSelect, samplePortResponse } from "./misc/misc";
-import { envFile, EnvFile, KeyName, keyNames, packet, Packet } from "./schemas";
+import { envFile, EnvFile, keyNames, packet, Packet, SendToMCUFn } from "./schemas";
 import { HTTP_APP } from "./http_app";
-import SPOTIFY from "./spotify";
+import { ControlsManager } from "./controls";
 
 console.log("==== Spicofy host service ====\n");
 
@@ -56,9 +56,12 @@ async function getPort(tryIndex = 1): Promise<null | PortInfo> {
 }
 
 async function main() {
+	const Controls = new ControlsManager();
 	const app = new HTTP_APP(ENV);
+
 	app.onCodeReceived = async (code) => {
-		await SPOTIFY.getInitialAuthToken(code, ENV);
+		await Controls.spotify.getInitialAuthToken(code, ENV);
+		await Controls.update();
 	};
 
 	console.log("Scanning for serial ports...");
@@ -84,7 +87,7 @@ async function main() {
 		baudRate: 115200
 	});
 
-	const sendToMCU = (label: string, data: any) => {
+	const sendToMCU: SendToMCUFn = (label: string, data: any) => {
 		if (!port.writable) {
 			console.log("[HOST] DATA LOSS: PORT NOT WRITABLE!");
 			return;
@@ -93,6 +96,7 @@ async function main() {
 		console.log("[HOST]:", packet);
 		port.write(JSON.stringify(packet));
 	};
+	Controls.bindToMCU(sendToMCU);
 
 	port.on("data", (d) => {
 		const rawmsg = d.toString().trim();
@@ -129,8 +133,7 @@ async function main() {
 					);
 					return;
 				}
-				const key = keyValidity.data;
-				console.log("[CONTROL] KEY PRESS: " + key);
+				Controls.keyDown(keyValidity.data);
 				break;
 
 			case "vol":
@@ -142,9 +145,9 @@ async function main() {
 					return;
 				}
 				if(msg[1] > 0) {
-					console.log("[CONTROL] VOLUME: +1");
+					Controls.volumeUpdate('increase');
 				} else if(msg[1] < 0) {
-					console.log("[CONTROL] VOLUME: -1");
+					Controls.volumeUpdate('decrease');
 				}
 				break;
 		}

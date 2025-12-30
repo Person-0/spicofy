@@ -7,12 +7,13 @@ import {
 	playbackStateResponse
 } from "./schemas";
 
-export default (new (class SpotifyAPI {
+export class SpotifyAPI {
 	TOKEN: null | string = null;
 	refreshToken: null | string = null;
 	normalAuthString: string | null = null;
+	authed = false;
 
-	fetch = async(
+	fetch = async (
 		method: 'GET' | 'PUT' | 'POST',
 		url: string,
 		auth: boolean = false,
@@ -20,8 +21,9 @@ export default (new (class SpotifyAPI {
 		bodyType: 'application/json' | 'application/x-www-form-urlencoded'
 			= 'application/json',
 		headers: Record<string, string> = {},
+		isText = false,
 		retryIndex = 0
-	): Promise<{ [recordName: string]: any }> => {
+	): Promise<{ [recordName: string]: any } | String> => {
 
 		const options: RequestInit = { method };
 
@@ -40,7 +42,13 @@ export default (new (class SpotifyAPI {
 
 		options.headers = headers;
 
-		const response = await (await fetch(url, options)).json() as {};
+		const fres = await fetch(url, options);
+		let response;
+		if (isText) {
+			response = await fres.text() as String;
+		} else {
+			response = await fres.json() as {};
+		}
 
 		const errorParse = erroredRequestInfo.safeParse(response);
 		if (errorParse.success) {
@@ -52,6 +60,7 @@ export default (new (class SpotifyAPI {
 				console.log(
 					"[SPOTIFY] Invalid access token, trying to refresh"
 				);
+				this.authed = false;
 				await this.refreshAuthToken();
 				return this.fetch(
 					method,
@@ -60,6 +69,7 @@ export default (new (class SpotifyAPI {
 					body,
 					bodyType,
 					headers,
+					isText,
 					retryIndex + 1
 				);
 			} else {
@@ -71,7 +81,7 @@ export default (new (class SpotifyAPI {
 	}
 
 
-	_authTokenRequest = async(requestBody: {})  => {
+	_authTokenRequest = async (requestBody: {}) => {
 		if (!this.normalAuthString) {
 			throw Error("_authTokenRequest() called without normalAuthString!");
 		}
@@ -124,7 +134,7 @@ export default (new (class SpotifyAPI {
 		this.onAuthTokenResponse(data);
 	}
 
-	refreshAuthToken = async() => {
+	refreshAuthToken = async () => {
 		if (!this.refreshToken) {
 			throw Error("refreshAuthToken() called without refreshToken!");
 		} else if (!this.normalAuthString) {
@@ -144,8 +154,9 @@ export default (new (class SpotifyAPI {
 		await this.onAuthTokenResponse(data);
 	}
 
-	onAuthTokenResponse = async(data: AuthTokenResponse) => {
+	onAuthTokenResponse = async (data: AuthTokenResponse) => {
 		this.TOKEN = data.access_token;
+		this.authed = true;
 		console.log("[SPOTIFY] Auth Token saved!");
 
 		if (data.refresh_token) {
@@ -156,7 +167,7 @@ export default (new (class SpotifyAPI {
 		setTimeout(this.refreshAuthToken, data.expires_in * 1000);
 	}
 
-	getPlayerState = async(): Promise<null | playbackStateResponse> => {
+	getPlayerState = async (): Promise<null | playbackStateResponse> => {
 		let isError = false;
 		const response = await this.fetch(
 			"GET",
@@ -166,9 +177,9 @@ export default (new (class SpotifyAPI {
 			isError = true;
 			console.log("[SPOTIFY] Failed to get player state:", e);
 		});
-		if(isError) return null;
+		if (isError) return null;
 		const parsed = playbackStateRequest.safeParse(response);
-		if(parsed.error) {
+		if (parsed.error) {
 			console.log(
 				"[SPOTIFY] Failed to get player state:",
 				parsed.error.message
@@ -177,4 +188,60 @@ export default (new (class SpotifyAPI {
 		}
 		return parsed.data;
 	}
-}));
+
+	authedPutRequests = async (reqName: string, url: string, body?: {}) => {
+		if (!this.authed) {
+			console.log(`[SPOTIFY] ${reqName}() called without auth`);
+			return;
+		}
+		await this.fetch(
+			"PUT",
+			url,
+			true,
+			body,
+			body ? 'application/json' : undefined,
+			{},
+			true
+		).catch(e => {
+			console.log(`[SPOTIFY] ${reqName}() called without auth`, e);
+		});
+	}
+
+	resumePlayer = () => this.authedPutRequests(
+		'resumePlayer',
+		'https://api.spotify.com/v1/me/player/play',
+		{
+			position_ms: 0
+		}
+	)
+
+	pausePlayer = () => this.authedPutRequests(
+		'pausePlayer',
+		'https://api.spotify.com/v1/me/player/pause'
+	)
+
+	skipToPrevious = () => this.authedPutRequests(
+		'skipToPrevious',
+		'https://api.spotify.com/v1/me/player/previous'
+	)
+
+	skipToNext = () => this.authedPutRequests(
+		'skipToNext',
+		'https://api.spotify.com/v1/me/player/next'
+	)
+
+	setPlayerVolume = (_volume: number) => {
+		if (_volume < 0 || _volume > 100) {
+			console.log(
+				"[SPOTIFY] setPlayerVolume() called with invalid volume"
+			);
+			return;
+		}
+		const volume = Math.floor(_volume).toString();
+		return this.authedPutRequests(
+			'setPlayerVolume',
+			'https://api.spotify.com/v1/me/player/volume?volume_percent=' + 
+			volume
+		);
+	}
+}

@@ -28,6 +28,8 @@ export const keyNames = z.union([
 ]);
 export type KeyName = z.infer<typeof keyNames>;
 
+export type SendToMCUFn = (label: string, data: any) => void;
+
 // http app
 
 export const callbackRequestData = z.object({
