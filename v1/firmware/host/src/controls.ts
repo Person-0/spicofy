@@ -51,7 +51,10 @@ export class ControlsManager {
 				playerState.item.artists.map(e => e.name).join(", ")
 			) : "",
 			playerState.progress_ms,
-			playerState.item.duration_ms
+			playerState.item.duration_ms,
+			this.volume,
+			this.isMuted,
+			this.isPlaying
 		]);
 
 		this.lastUpdateSent = now;
