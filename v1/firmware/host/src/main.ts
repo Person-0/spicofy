@@ -1,7 +1,7 @@
 import "./misc/console";
 import { SerialPort } from "serialport";
 import { choiceSelect, samplePortResponse } from "./misc/misc";
-import { envFile, EnvFile, packet, Packet } from "./schemas";
+import { envFile, EnvFile, KeyName, keyNames, packet, Packet } from "./schemas";
 import { HTTP_APP } from "./http_app";
 import SPOTIFY from "./spotify";
 
@@ -84,7 +84,7 @@ async function main() {
 		baudRate: 115200
 	});
 
-	const sendToMCU = (label: string, data: Record<string, any>) => {
+	const sendToMCU = (label: string, data: any) => {
 		if (!port.writable) {
 			console.log("[HOST] DATA LOSS: PORT NOT WRITABLE!");
 			return;
@@ -92,7 +92,7 @@ async function main() {
 		const packet = [label, data] satisfies Packet;
 		console.log("[HOST]:", packet);
 		port.write(JSON.stringify(packet));
-	}
+	};
 
 	port.on("data", (d) => {
 		const rawmsg = d.toString().trim();
@@ -118,6 +118,34 @@ async function main() {
 				console.log("by going to the following link:");
 				console.log("http://127.0.0.1:8192/authorize\n");
 				app.allowAuthFlow = true;
+				break;
+
+			case "key":
+				const keyValidity = keyNames.safeParse(msg[1]);
+				if(keyValidity.error) {
+					console.log(
+						"[SERIAL PARSE ERROR:]",
+						keyValidity.error
+					);
+					return;
+				}
+				const key = keyValidity.data;
+				console.log("[CONTROL] KEY PRESS: " + key);
+				break;
+
+			case "vol":
+				if(!(typeof msg[1] === "number")){
+					console.log(
+						"[SERIAL PARSE ERROR:]",
+						"Volume packet second arg not a number"
+					);
+					return;
+				}
+				if(msg[1] > 0) {
+					console.log("[CONTROL] VOLUME: +1");
+				} else if(msg[1] < 0) {
+					console.log("[CONTROL] VOLUME: -1");
+				}
 				break;
 		}
 	});

@@ -15,9 +15,18 @@ export type EnvFile = z.infer<typeof envFile>;
 
 export const packet = z.tuple([
 	z.string().min(1),
-	z.record(z.string(), z.any())
+	z.any()
 ]);
 export type Packet = z.infer<typeof packet>;
+
+export const keyNames = z.union([
+	z.literal("MUTE"),
+	z.literal("PREVIOUS"),
+	z.literal("TOGGLE"),
+	z.literal("NEXT"),
+	z.literal("MISC")
+]);
+export type KeyName = z.infer<typeof keyNames>;
 
 // http app
 

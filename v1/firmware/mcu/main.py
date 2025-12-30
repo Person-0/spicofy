@@ -13,6 +13,7 @@ import board
 # from kmk.modules.macros import Macros
 # from kmk.keys import KC
 from kmk import EncoderHandler, KMKKeyboard, KeysScanner, Macros, KC
+import json
 
 keyboard = KMKKeyboard()
 
@@ -40,15 +41,22 @@ encoder_handler.pins = (
     (board.D2, board.D1),
 )
 
+def message_send(label, data):
+    # label: str, data: dict
+    packet = [label, data]
+    packet = json.dumps(packet)
+    print(packet)
+
+
 def volume(is_action_up):
     if is_action_up:
-        print("Volume Increase!")
+        message_send(['vol', 1])
     else:
-        print("Volume Decrease!")
+        message_send(['vol', -1])
 
 def key_press(keynum):
     keyname = KEY_NAMES[keynum]
-    print(keyname, " pressed!")
+    message_send(['key', keyname])
 
 encoder_handler.map = [
     ((
@@ -61,4 +69,5 @@ keyboard.keymap = [
 ]
 
 if __name__ == '__main__':
+    message_send(['ping'], {})
     keyboard.go()
