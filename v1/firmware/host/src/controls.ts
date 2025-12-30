@@ -1,4 +1,4 @@
-import { KeyName, SendToMCUFn } from "./schemas";
+import { KeyName, Packet, playbackStateResponse, SendToMCUFn } from "./schemas";
 import { SpotifyAPI } from "./spotify";
 
 export class ControlsManager {
@@ -9,23 +9,52 @@ export class ControlsManager {
 	volume = 0;
 	isPlaying = false;
 	isMuted = false;
+	playbackState: playbackStateResponse | null;
+	lastUpdateSent = -1;
 
 	bindToMCU = (sendToMCU: SendToMCUFn) => {
 		this.sendToMCU = sendToMCU;
 	}
 
-	update = async () => {
-		if (!this.sendToMCU) {
-			return;
+	constructor() {
+		this.playbackState = null;
+		setInterval(this.sendUpdateToMCU, 1e3);
+	}
+
+	updateState = async() => {
+		this.playbackState = await this.spotify.getPlayerState();
+	}
+
+	sendUpdateToMCU = async () => {
+		if (!this.sendToMCU) return;
+
+		let delta = 0;
+		const now = Date.now();
+		if(this.lastUpdateSent < 0) {
+			this.lastUpdateSent = now;
+		} else {
+			delta = now - this.lastUpdateSent;
 		}
 
-		const playerState = await this.spotify.getPlayerState();
-		if (!playerState) {
-			this.sendToMCU("state", {});
-			return;
+		const playerState = this.playbackState;
+		if(!playerState) return;
+
+		playerState.progress_ms += delta;
+		if(playerState.progress_ms > playerState.item.duration_ms) {
+			playerState.progress_ms = playerState.item.duration_ms;
+			setTimeout(this.updateState, 250);
 		}
 
+		this.sendToMCU("state", [
+			playerState.item.name,
+			playerState.item.artists ? (
+				playerState.item.artists.map(e => e.name).join(", ")
+			) : "",
+			playerState.progress_ms,
+			playerState.item.duration_ms
+		]);
 
+		this.lastUpdateSent = now;
 	}
 
 	keyDown = (key: KeyName) => {
@@ -65,7 +94,7 @@ export class ControlsManager {
 
 		}
 
-		setTimeout(this.update, 150);
+		setTimeout(this.updateState, 250);
 	}
 
 	volumeUpdate = (action: 'increase' | 'decrease') => {
