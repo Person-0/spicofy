@@ -1,25 +1,19 @@
-# Note!!!
-# I'm using a mock kmk.py and board.py to sanity-test my code
-# Since I'm too lazy to create the entire directory structure,
-# I've made it a single file which means we cannot use the imports
-# as-is. Hence, the comments below are present.
-# The comments will be removed in the final code along with the 
-# invalid single kmk import line
-
 import board
-# from kmk.modules.encoder import EncoderHandler
-# from kmk.kmk_keyboard import KMKKeyboard
-# from kmk.scanners.keypad import KeysScanner
-# from kmk.modules.macros import Macros
-# from kmk.keys import KC
-from kmk import EncoderHandler, KMKKeyboard, KeysScanner, Macros, KC
+from kmk.modules.encoder import EncoderHandler
+from kmk.kmk_keyboard import KMKKeyboard
+from kmk.scanners.keypad import KeysScanner
+from kmk.modules.macros import Macros
+from kmk.keys import KC
+from serialin import SerialListener
 import json
 
 keyboard = KMKKeyboard()
 
 macros = Macros()
 encoder_handler = EncoderHandler()
+serial_listener = SerialListener()
 
+keyboard.modules.append(serial_listener)
 keyboard.modules.append(encoder_handler)
 keyboard.modules.append(macros)
 
@@ -41,14 +35,30 @@ encoder_handler.pins = (
     (board.D2, board.D1),
 )
 
+# label: str, data: dict
 def message_send(label, data):
-    # label: str, data: dict
     packet = [label, data]
     packet = json.dumps(packet)
     print(packet)
 
+def message_parse(label, data):
+    if(label == "state"):
+        name, artistName, progress, duration, volume, muted, playing = data
+        # handle data
 
-def volume(is_action_up):
+def message_recv(rawdatastr):
+    data = None
+    try:
+        data = json.loads(rawdatastr)
+        if not (isinstance(data, list)):
+            raise Exception("not a list")
+        elif not (len(data) == 2):
+            raise Exception("len is not 2")
+    except:
+        data = None
+    message_parse(data[0], data[1])
+
+def volume_change(is_action_up):
     if is_action_up:
         message_send(['vol', 1])
     else:
@@ -60,13 +70,14 @@ def key_press(keynum):
 
 encoder_handler.map = [
     ((
-        KC.MACRO(lambda: volume(False)),
-        KC.MACRO(lambda: volume(True))
+        KC.MACRO(lambda: volume_change(False)),
+        KC.MACRO(lambda: volume_change(True))
     ),)
 ]
 keyboard.keymap = [
     [KC.MACRO(lambda i=i: key_press(i)) for i in range(len(KEY_PINS))]
 ]
+serial_listener.onMessage = message_recv
 
 if __name__ == '__main__':
     message_send(['ping'], {})
