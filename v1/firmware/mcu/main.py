@@ -1,15 +1,62 @@
-import board
-import json
+import board, busio, displayio, terminalio, json
 
+import adafruit_displayio_ssd1306
+from adafruit_display_text import label
 from kmk.modules.encoder import EncoderHandler
 from kmk.kmk_keyboard import KMKKeyboard
 from kmk.scanners.keypad import KeysScanner
 from kmk.modules.macros import Macros
 from kmk.keys import KC
-import adafruit_ssd1306
 
+# input from host
 from serialin import SerialListener
 
+# oled display text
+displayio.release_displays()
+i2c = busio.I2C(board.SCL, board.SDA)
+display_bus = displayio.I2CDisplay(
+    i2c,
+    device_address=0x3C  # try 0x3D if nothing shows
+)
+display = adafruit_displayio_ssd1306.SSD1306(
+    display_bus,
+    width=128,
+    height=32
+)
+oled_display = displayio.Group()
+display.root_group = oled_display
+line_1 = label.Label(
+    terminalio.FONT,
+    text="Connecting the",
+    color=0xFFFFFF,
+    x=0,
+    y=8
+)
+line_2 = label.Label(
+    terminalio.FONT,
+    text="host...",
+    color=0xFFFFFF,
+    x=0,
+    y=16
+)
+line_3 = label.Label(
+    terminalio.FONT,
+    text=".......",
+    color=0xFFFFFF,
+    x=0,
+    y=24
+)
+line_4 = label.Label(
+    terminalio.FONT,
+    text=".......",
+    color=0xFFFFFF,
+    x=0,
+    y=32
+)
+oled_display.append(line_1, line_2, line_3, line_4)
+
+
+# switches & rotary encoder
 keyboard = KMKKeyboard()
 
 macros = Macros()
@@ -47,7 +94,25 @@ def message_send(label, data):
 def message_parse(label, data):
     if(label == "state"):
         name, artistName, progress, duration, volume, muted, playing = data
-        # handle data
+
+        if playing:
+            finalstr = "Now Playing:  "
+            if muted:
+                finalstr += "[muted]"
+            else:
+                finalstr += f"[{volume}/100]"
+            line_1.text = finalstr
+        else:
+            line_1.text = "[paused]"
+
+        line_2.text = name
+        line_3.text = artistName
+
+        BAR_WIDTH = 20
+        filled = round((progress / duration) * BAR_WIDTH)
+        progressBar = "[" + ("=" * filled).ljust(BAR_WIDTH, ".") + "]"
+
+        line_4.text = progressBar
 
 def message_recv(rawdatastr):
     data = None
