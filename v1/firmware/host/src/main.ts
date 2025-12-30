@@ -62,6 +62,7 @@ async function main() {
 	app.onCodeReceived = async (code) => {
 		await Controls.spotify.getInitialAuthToken(code, ENV);
 		await Controls.updateState();
+		app.stop();
 	};
 
 	console.log("Scanning for serial ports...");

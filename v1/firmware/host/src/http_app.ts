@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import express from "express";
 import { callbackRequestData, EnvFile } from "./schemas";
+import { Server } from "http";
 
 const HTTP_PORT = 8192;
 const randomString = (len: number) => {
@@ -14,6 +15,7 @@ const randomString = (len: number) => {
 
 export class HTTP_APP {
 	app = express();
+	server: Server | undefined; 
 	allowAuthFlow = false;
 	onCodeReceived: null | ((code: string) => void) = null;
 
@@ -89,10 +91,17 @@ export class HTTP_APP {
 	}
 
 	start = () => {
-		this.app.listen(HTTP_PORT, () => {
+		this.server = this.app.listen(HTTP_PORT, () => {
 			console.log(
 				`[HTTP INFO] http_app listening on 127.0.0.1:${HTTP_PORT}`
 			);
 		})
+	}
+
+	stop = () => {
+		if(this.server) {
+			this.server.close();
+			console.log("[HTTP INFO] http_app closed.");
+		}
 	}
 }
