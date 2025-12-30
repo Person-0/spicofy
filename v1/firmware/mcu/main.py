@@ -53,7 +53,10 @@ line_4 = label.Label(
     x=0,
     y=32
 )
-oled_display.append(line_1, line_2, line_3, line_4)
+oled_display.append(line_1)
+oled_display.append(line_2)
+oled_display.append(line_3)
+oled_display.append(line_4)
 
 
 # switches & rotary encoder
@@ -85,6 +88,27 @@ encoder_handler.pins = (
     (board.D2, board.D1),
 )
 
+def volume_change(is_action_up):
+    if is_action_up:
+        message_send('vol', 1)
+    else:
+        message_send('vol', -1)
+
+def key_press(keynum):
+    keyname = KEY_NAMES[keynum]
+    message_send('key', keyname)
+
+encoder_handler.map = [
+    ((
+        KC.MACRO(lambda: volume_change(False)),
+        KC.MACRO(lambda: volume_change(True))
+    ),)
+]
+keyboard.keymap = [
+    [KC.MACRO(lambda i=i: key_press(i)) for i in range(len(KEY_PINS))]
+]
+
+# serial message parsing n sending
 # label: str, data: dict
 def message_send(label, data):
     packet = [label, data]
@@ -126,27 +150,8 @@ def message_recv(rawdatastr):
         data = None
     message_parse(data[0], data[1])
 
-def volume_change(is_action_up):
-    if is_action_up:
-        message_send(['vol', 1])
-    else:
-        message_send(['vol', -1])
-
-def key_press(keynum):
-    keyname = KEY_NAMES[keynum]
-    message_send(['key', keyname])
-
-encoder_handler.map = [
-    ((
-        KC.MACRO(lambda: volume_change(False)),
-        KC.MACRO(lambda: volume_change(True))
-    ),)
-]
-keyboard.keymap = [
-    [KC.MACRO(lambda i=i: key_press(i)) for i in range(len(KEY_PINS))]
-]
 serial_listener.onMessage = message_recv
 
 if __name__ == '__main__':
-    message_send(['ping'], {})
+    message_send('ping', 0)
     keyboard.go()
