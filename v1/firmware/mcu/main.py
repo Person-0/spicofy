@@ -133,7 +133,7 @@ def message_parse(label, data):
         line_3.text = artistName
 
         BAR_WIDTH = 20
-        filled = round((progress / duration) * BAR_WIDTH)
+        filled = round(((progress / duration) if duration else 0) * BAR_WIDTH)
         progressBar = "[" + ("=" * filled).ljust(BAR_WIDTH, ".") + "]"
 
         line_4.text = progressBar
@@ -148,7 +148,8 @@ def message_recv(rawdatastr):
             raise Exception("len is not 2")
     except:
         data = None
-    message_parse(data[0], data[1])
+    if not (data is None):
+        message_parse(data[0], data[1])
 
 serial_listener.onMessage = message_recv
 
