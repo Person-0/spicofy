@@ -14,7 +14,7 @@ const randomString = (len: number) => {
 
 export class HTTP_APP {
 	app = express();
-	allowAuthFlow = true//false;
+	allowAuthFlow = false;
 	onCodeReceived: null | ((code: string) => void) = null;
 
 	constructor(ENV: EnvFile) {
@@ -86,8 +86,6 @@ export class HTTP_APP {
 				});
 			}
 		});
-
-		this.start();
 	}
 
 	start = () => {

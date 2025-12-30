@@ -19,7 +19,7 @@ let ENV: EnvFile;
 type PortInfo = Awaited<ReturnType<typeof SerialPort.list>>[number];
 
 async function getPort(tryIndex = 1): Promise<null | PortInfo> {
-	const ports = samplePortResponse;//await SerialPort.list();
+	const ports = await SerialPort.list();
 	const numPorts = ports.length;
 
 	if (!numPorts) {
@@ -76,7 +76,6 @@ async function main() {
 		if (portGetErr) {
 			console.log("Exit Reason:", portGetErr);
 		}
-		//process.exit();
 		return;
 	}
 
@@ -122,6 +121,7 @@ async function main() {
 				console.log("by going to the following link:");
 				console.log("http://127.0.0.1:8192/authorize\n");
 				app.allowAuthFlow = true;
+				app.start()
 				break;
 
 			case "key":
@@ -155,7 +155,6 @@ async function main() {
 
 	port.on("close", () => {
 		console.log("[CONNECTION CLOSED]");
-		process.exit();
 	});
 }
 

@@ -1,17 +1,5 @@
 import * as readline from "readline";
 
-const rlinterface = readline.createInterface(
-	{ input: process.stdin, output: process.stdout }
-);
-
-const asyncQuestion = (query: string) => new Promise((resolve) => {
-	console.pause();
-	rlinterface.question(query, (ans) => {
-		resolve(ans);
-		console.resume();
-	});
-});
-
 type ChoiceResult =
 	| {
 		cancelled: true;
@@ -23,8 +11,25 @@ type ChoiceResult =
 	};
 
 export async function choiceSelect(choices: any[]): Promise<ChoiceResult> {
+	const rlinterface = readline.createInterface(
+		{ input: process.stdin, output: process.stdout }
+	);
+
+	const asyncQuestion = (query: string) => new Promise((resolve) => {
+		console.pause();
+		rlinterface.question(query, (ans) => {
+			resolve(ans);
+			console.resume();
+		});
+	});
+
 	console.log("Please select one of the following choices:");
-	let didCancel = false;
+
+	const result = {
+		cancelled: false,
+		choiceData: null
+	};
+
 	for (const choice of choices) {
 		console.log("");
 		console.log(
@@ -35,19 +40,16 @@ export async function choiceSelect(choices: any[]): Promise<ChoiceResult> {
 			.replaceAll(" ", "")
 			.toLowerCase();
 		if (ans === "y") {
-			return {
-				cancelled: false,
-				choiceData: choice
-			};
+			result.choiceData = choice;
 		} else if (ans === "x") {
-			didCancel = true
+			result.cancelled = true;
 			break;
 		}
 	}
-	return {
-		cancelled: didCancel,
-		choiceData: null
-	};
+
+	rlinterface.close();
+	process.stdin.pause();
+	return result;
 }
 
 /**
