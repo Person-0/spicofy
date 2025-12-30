@@ -11,6 +11,9 @@ Made as a submission to [hackclub's blueprint](blueprint.hackclub.com) with imme
 
 > *This is my first hardware project! Thank you hackclub for this amazing opportunity!! <3*
 
+[View CAD Files](./v1/CAD/)<br>
+[View PCB Files](./v1/PCB/)
+
 ## Components Used (BOM)
 - Seeed XIAO RP2040 (1x)
 - EC11 Rotary encoder (1x)
