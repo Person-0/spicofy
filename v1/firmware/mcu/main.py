@@ -1,11 +1,14 @@
 import board
+import json
+
 from kmk.modules.encoder import EncoderHandler
 from kmk.kmk_keyboard import KMKKeyboard
 from kmk.scanners.keypad import KeysScanner
 from kmk.modules.macros import Macros
 from kmk.keys import KC
+import adafruit_ssd1306
+
 from serialin import SerialListener
-import json
 
 keyboard = KMKKeyboard()
 
