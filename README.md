@@ -7,7 +7,7 @@ A spotify controller with features including play, pause and volume control and 
 
 <br>
 
-Made as a submission to [hackclub's blueprint](blueprint.hackclub.com) with immense help from the [make-your-own-hackpad guide.](https://blueprint.hackclub.com/hackpad)
+Made as a submission to [hackclub's blueprint](https://blueprint.hackclub.com) with immense help from the [make-your-own-hackpad guide.](https://blueprint.hackclub.com/hackpad)
 
 > *This is my first hardware project! Thank you hackclub for this amazing opportunity!! <3*
 
